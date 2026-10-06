@@ -1,0 +1,34 @@
+[
+ {
+  "berkas": "apel_tim.jpg",
+  "buah": "apel",
+  "judul": "Apel di atas cutting mat",
+  "pembuat": "Tim Buah-Seru (foto sendiri, diperbesar 4x dengan Real-ESRGAN)",
+  "lisensi": "Milik tim",
+  "sumber": "Diambil dari screenshot uji aplikasi Buah-Seru versi pertama"
+ },
+ {
+  "berkas": "jeruk_tim.jpg",
+  "buah": "jeruk",
+  "judul": "Jeruk di atas cutting mat",
+  "pembuat": "Tim Buah-Seru (foto sendiri, diperbesar 4x dengan Real-ESRGAN)",
+  "lisensi": "Milik tim",
+  "sumber": "Diambil dari screenshot uji aplikasi Buah-Seru versi pertama"
+ },
+ {
+  "berkas": "pisang.jpg",
+  "buah": "pisang",
+  "judul": "Bunch of bananas.JPG",
+  "pembuat": "Pdpics.com",
+  "lisensi": "CC0",
+  "sumber": "https://commons.wikimedia.org/wiki/File:Bunch_of_bananas.JPG"
+ },
+ {
+  "berkas": "pisang_tandan.jpg",
+  "buah": "pisang",
+  "judul": "Jalgaon Banana Bunch closeup.jpg",
+  "pembuat": "Amol Pandharkar",
+  "lisensi": "CC0",
+  "sumber": "https://commons.wikimedia.org/wiki/File:Jalgaon_Banana_Bunch_closeup.jpg"
+ }
+]
