@@ -63,7 +63,7 @@ void main() {
       await tap(find.text(guess));
     }
 
-    await tester.pumpWidget(BuahSeruApp(state: state, classifierLoader: TfliteFruitClassifier.load));
+    await tester.pumpWidget(BuahSeruApp(state: state, classifierLoader: TfliteFruitClassifier.load, intro: false));
     await settle(20);
     await shoot('01-beranda');
 

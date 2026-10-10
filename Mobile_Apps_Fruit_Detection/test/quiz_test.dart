@@ -50,6 +50,17 @@ void main() {
       expect(r.points, 0);
     });
 
+    test('mengganti pilihan ke jawaban yang benar tidak memberi poin', () {
+      final r = evaluate(guess: 'Pisang', ai: Fruit.pisang, firstGuess: 'Mangga');
+      expect(r.truth, 'Pisang');
+      expect(r.aiCorrect, isTrue);
+      expect(r.userCorrect, isFalse);
+      expect(r.points, 0);
+      final m = evaluate(guess: 'Nanas', ai: Fruit.pisang, verdict: Verdict.mine, firstGuess: 'Mangga');
+      expect(m.truth, 'Nanas');
+      expect(m.points, 0);
+    });
+
     test('bukan keduanya', () {
       final r = evaluate(guess: 'Mangga', ai: Fruit.pisang, verdict: Verdict.neither);
       expect(r.truth, isNull);

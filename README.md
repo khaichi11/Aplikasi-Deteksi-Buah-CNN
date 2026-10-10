@@ -13,6 +13,10 @@
   <a href="#bahasa-indonesia">Bahasa Indonesia</a> · <a href="#english">English</a>
 </p>
 
+<p align="center">
+  <img src="Mobile_Apps_Fruit_Detection/docs/demo.gif" width="300" alt="Demo Buah-Seru: pembuka dengan buah yang melompat, beranda, menebak foto apel, mengganti pilihan saat berbeda pendapat dengan AI, dan kartu buah">
+</p>
+
 <table>
   <tr>
     <td align="center" width="25%"><img src="Mobile_Apps_Fruit_Detection/docs/screenshots/framed/09-beranda-terisi.png" width="180" alt="Beranda"><br><sub>Beranda / Home</sub></td>
@@ -42,14 +46,20 @@ menjawab dengan tepat. Dengan cara ini, anak belajar bahwa AI dapat keliru dan p
 
 Foto buah dapat diambil dengan kamera yang dilengkapi lingkaran pemandu, dipilih dari galeri, atau diganti dengan foto
 contoh bagi anak yang ingin mencoba tanpa buah asli. Setiap foto diawali kuis tebak dulu dengan tiga pilihan jawaban,
-dan jawaban AI baru ditampilkan setelah anak memilih. Apabila keduanya berbeda pendapat, anak dapat menyatakan bahwa
-dirinya benar, bahwa AI yang benar, atau bahwa keduanya keliru. Batang keyakinan menunjukkan seberapa yakin AI
+dan jawaban AI baru ditampilkan setelah anak memilih. Apabila keduanya berbeda pendapat, anak diajak melihat fotonya
+sekali lagi dan masih boleh mengganti pilihannya, atau menyatakan bahwa dirinya benar, bahwa AI yang benar, atau bahwa
+keduanya keliru. Poin hanya diberikan untuk tebakan pertama yang benar, sehingga jawaban AI tidak dapat sekadar
+disalin. Batang keyakinan menunjukkan seberapa yakin AI
 terhadap setiap buah, disertai peringatan ketika keyakinannya rendah.
 
 Setiap buah memiliki kartu yang memuat kandungan gizi per 100 gram dari USDA FoodData Central, manfaat, tips memilih,
 dan satu fakta menarik. Kemajuan anak tercatat melalui poin, jumlah jawaban benar berturut-turut, koleksi buah yang
 sudah ditemukan, serta riwayat 60 tebakan terakhir. Seluruh data tersebut, termasuk foto kecil hasil tebakan, hanya
 disimpan di ponsel; aplikasi tidak memerlukan akun dan tidak mengirim data ke server.
+
+Saat dibuka, aplikasi menyapa dengan "Halo!", lalu apel, jeruk, dan pisang melompat bergantian di tengah layar sementara
+model CNN dimuat. Anak dapat mengetuk buahnya: buah yang diketuk melompat tinggi sambil berputar, dan ulat kecil keluar
+dari lubang apel. Karena model sudah dimuat selama pembuka, tebakan pertama tidak perlu menunggu lama.
 
 ### Tangkapan layar
 
@@ -143,14 +153,21 @@ learn that AI can be wrong and needs to be checked.
 
 A photo can be taken with the camera, which shows a circular guide, picked from the gallery, or replaced by a sample
 photo for children who want to try the app without real fruit. Every photo starts with a guess-first quiz that offers
-three answers, and the AI's answer is revealed only after the child has chosen. When the two disagree, the child can
-say that they are right, that the AI is right, or that neither is. Confidence bars show how sure the AI is about each
+three answers, and the AI's answer is revealed only after the child has chosen. When the two disagree, the child is
+invited to look at the photo again and may still change the answer, or can say that they are right, that the AI is
+right, or that neither is. Points are given only for a correct first guess, so the AI's answer cannot simply be
+copied. Confidence bars show how sure the AI is about each
 fruit, with a warning when its confidence is low.
 
 Each fruit has a card with its nutrition per 100 grams from USDA FoodData Central, its benefits, buying tips, and a
 fun fact. Progress is recorded through points, correct-answer streaks, a collection of the fruit found so far, and a
 history of the last 60 guesses. All of this data, including the small photos from each guess, stays on the phone; the
 app needs no account and sends nothing to a server.
+
+On launch the app greets the child with "Halo!", and then an apple, an orange, and a banana take turns hopping in the
+middle of the screen while the CNN loads. The child can tap them: the tapped fruit jumps high and spins, and a small
+caterpillar peeks out of the hole in the apple. Because the model loads during the opening, the first guess does not
+keep the child waiting.
 
 ### Screenshots
 

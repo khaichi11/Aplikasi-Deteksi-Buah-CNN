@@ -4,20 +4,17 @@ import 'screens/home_screen.dart';
 import 'services/app_state.dart';
 import 'services/classifier.dart';
 import 'theme.dart';
+import 'widgets/fruit_loader.dart';
+import 'widgets/opening_intro.dart';
 
 /// Layanan bersama untuk seluruh layar.
 class AppScope extends InheritedNotifier<AppState> {
   final Future<FruitClassifier> Function() classifierLoader;
 
-  const AppScope({
-    super.key,
-    required AppState state,
-    required this.classifierLoader,
-    required super.child,
-  }) : super(notifier: state);
+  const AppScope({super.key, required AppState state, required this.classifierLoader, required super.child})
+    : super(notifier: state);
 
-  static AppScope of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<AppScope>()!;
+  static AppScope of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<AppScope>()!;
 
   static AppScope read(BuildContext context) =>
       context.getElementForInheritedWidgetOfExactType<AppScope>()!.widget as AppScope;
@@ -32,11 +29,15 @@ class BuahSeruApp extends StatefulWidget {
   /// Matikan fitur kamera (dipakai di uji widget tanpa plugin native).
   final bool enableCamera;
 
+  /// Tampilkan pembuka saat aplikasi dibuka (dimatikan di uji widget).
+  final bool intro;
+
   const BuahSeruApp({
     super.key,
     required this.state,
     required this.classifierLoader,
     this.enableCamera = true,
+    this.intro = true,
   });
 
   @override
@@ -45,9 +46,15 @@ class BuahSeruApp extends StatefulWidget {
 
 class _BuahSeruAppState extends State<BuahSeruApp> {
   Future<FruitClassifier>? _classifier;
+  late bool _introDone = !widget.intro;
 
-  /// Model dimuat sekali, lalu dipakai bersama.
-  Future<FruitClassifier> _load() => _classifier ??= widget.classifierLoader();
+  /// Model dimuat sekali, lalu dipakai bersama. Bila gagal, percobaan berikutnya memuat ulang, bukan mengulang
+  /// kegagalan yang sama.
+  Future<FruitClassifier> _load() => _classifier ??= widget.classifierLoader()
+    ..catchError((Object e) {
+      _classifier = null;
+      throw e;
+    }).ignore();
 
   @override
   void dispose() {
@@ -64,7 +71,26 @@ class _BuahSeruAppState extends State<BuahSeruApp> {
         title: 'Buah-Seru',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
-        home: HomeScreen(enableCamera: widget.enableCamera),
+        home: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 350),
+          child: _introDone
+              ? HomeScreen(enableCamera: widget.enableCamera)
+              : OpeningIntro(
+                  appName: 'Buah-Seru',
+                  tagline: 'Tebak buah bersama AI',
+                  mark: const FruitLoader(),
+                  hint: 'Ketuk buahnya',
+                  colors: const [Color(0xFF7E57C2), AppColors.purple],
+                  paper: AppColors.background,
+                  accent: AppColors.purple,
+                  ink: AppColors.ink,
+                  displayFont: AppFonts.display,
+                  bodyFont: AppFonts.body,
+                  // model dimuat selama pembuka, jadi tebakan pertama tidak menunggu lama
+                  ready: _load().then((_) {}),
+                  onDone: () => setState(() => _introDone = true),
+                ),
+        ),
       ),
     );
   }

@@ -31,6 +31,7 @@ class _ResultScreenState extends State<ResultScreen> {
   List<String> _options = const [];
 
   String? _guess;
+  String? _firstGuess;
   QuizOutcome? _outcome;
 
   @override
@@ -54,26 +55,39 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
+  /// Pilihan tetap bisa diganti selama kuis belum selesai: saat berbeda pendapat dengan AI, anak boleh melihat lagi
+  /// fotonya dan memilih jawaban lain. Poin tetap dihitung dari tebakan pertama, jadi mengganti ke jawaban AI sama
+  /// dengan mengakui AI yang benar.
   void _pick(String guess) {
     final ai = _prediction!.top;
-    setState(() => _guess = guess);
-    if (guess == ai.name) _finish(evaluate(guess: guess, ai: ai));
+    setState(() {
+      _firstGuess ??= guess;
+      _guess = guess;
+    });
+    if (guess == ai.name) _finish(evaluate(guess: guess, ai: ai, firstGuess: _firstGuess));
   }
 
-  void _decide(Verdict v) => _finish(evaluate(guess: _guess!, ai: _prediction!.top, verdict: v));
+  void _decide(Verdict v) {
+    // "AI yang benar" sama dengan mengganti jawaban ke tebakan AI, sehingga pilihan yang disorot ikut berpindah
+    if (v == Verdict.ai) {
+      _pick(_prediction!.top.name);
+      return;
+    }
+    _finish(evaluate(guess: _guess!, ai: _prediction!.top, verdict: v, firstGuess: _firstGuess));
+  }
 
   void _finish(QuizOutcome o) {
     final p = _prediction!;
     setState(() => _outcome = o);
     AppScope.read(context).state.record(
-          ai: p.top,
-          aiConfidence: p.confidence,
-          guess: _guess!,
-          truth: o.truth,
-          aiCorrect: o.aiCorrect,
-          earned: o.points,
-          thumbnail: _thumbnail,
-        );
+      ai: p.top,
+      aiConfidence: p.confidence,
+      guess: _firstGuess!,
+      truth: o.truth,
+      aiCorrect: o.aiCorrect,
+      earned: o.points,
+      thumbnail: _thumbnail,
+    );
   }
 
   @override
@@ -100,14 +114,19 @@ class _ResultScreenState extends State<ResultScreen> {
           else if (p == null)
             const _Loading()
           else ...[
-            _GuessStep(options: _options, guess: _guess, ai: p.top, onPick: _guess == null ? _pick : null),
+            _GuessStep(options: _options, guess: _guess, ai: p.top, onPick: _outcome == null ? _pick : null),
             if (_guess != null && _guess != p.top.name && _outcome == null) ...[
               const SizedBox(height: 16),
               _VerdictStep(guess: _guess!, prediction: p, onDecide: _decide),
             ],
             if (_outcome != null) ...[
               const SizedBox(height: 16),
-              _OutcomePanel(outcome: _outcome!, ai: p.top, streak: AppScope.of(context).state.streak),
+              _OutcomePanel(
+                outcome: _outcome!,
+                ai: p.top,
+                streak: AppScope.of(context).state.streak,
+                firstGuess: _firstGuess != _guess ? _firstGuess : null,
+              ),
               const SizedBox(height: 16),
               _ConfidencePanel(prediction: p),
               _LearnMore(fruit: FruitX.fromLabel(_outcome!.truth ?? '') ?? (_outcome!.aiCorrect ? p.top : null)),
@@ -249,7 +268,10 @@ class _OptionButton extends StatelessWidget {
                 ),
               ),
               if (note != null)
-                Text(note, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: border)),
+                Text(
+                  note,
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: border),
+                ),
             ],
           ),
         ),
@@ -276,7 +298,8 @@ class _VerdictStep extends StatelessWidget {
           Text('Kalian berbeda pendapat', style: displayStyle(size: 18)),
           const SizedBox(height: 6),
           Text(
-            'Kamu memilih $guess, AI menebak $ai. Lihat lagi fotonya, mana yang benar?',
+            'Kamu memilih $guess, AI menebak $ai. Lihat lagi fotonya. Kamu masih boleh mengganti pilihan di atas, '
+            'atau pilih mana yang benar.',
             style: const TextStyle(height: 1.45),
           ),
           const SizedBox(height: 14),
@@ -296,7 +319,10 @@ class _OutcomePanel extends StatelessWidget {
   final Fruit ai;
   final int streak;
 
-  const _OutcomePanel({required this.outcome, required this.ai, required this.streak});
+  /// Tebakan pertama bila anak mengganti pilihannya; null bila tidak.
+  final String? firstGuess;
+
+  const _OutcomePanel({required this.outcome, required this.ai, required this.streak, this.firstGuess});
 
   @override
   Widget build(BuildContext context) {
@@ -310,6 +336,11 @@ class _OutcomePanel extends StatelessWidget {
     } else if (o.userCorrect) {
       title = 'Kamu lebih jeli dari AI!';
       body = 'Ini ${o.truth}. AI salah mengira ini ${ai.name}.';
+    } else if (firstGuess != null && o.truth != null) {
+      title = 'Bagus, kamu memeriksa lagi';
+      body =
+          'Ini ${o.truth}. Tebakan pertamamu $firstGuess, jadi poin belum didapat kali ini.'
+          '${o.aiCorrect ? '' : ' AI juga salah mengira ini ${ai.name}.'}';
     } else if (o.aiCorrect) {
       title = 'Kali ini AI yang benar';
       body = 'Ini ${o.truth}. Tidak apa-apa, coba lagi dengan buah lain.';
@@ -331,8 +362,10 @@ class _OutcomePanel extends StatelessWidget {
                 Text(body, style: const TextStyle(height: 1.4)),
                 if (good && streak > 1) ...[
                   const SizedBox(height: 6),
-                  Text('$streak kali benar berturut-turut',
-                      style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.leaf)),
+                  Text(
+                    '$streak kali benar berturut-turut',
+                    style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.leaf),
+                  ),
                 ],
               ],
             ),
@@ -361,15 +394,14 @@ class _ConfidencePanel extends StatelessWidget {
         children: [
           Text('Seberapa yakin AI?', style: displayStyle(size: 17)),
           const SizedBox(height: 10),
-          for (final f in Fruit.values)
-            ProbabilityBar(fruit: f, value: p.probabilities[f] ?? 0, highlight: f == p.top),
+          for (final f in Fruit.values) ProbabilityBar(fruit: f, value: p.probabilities[f] ?? 0, highlight: f == p.top),
           const SizedBox(height: 8),
           Text(
             p.isConfident
                 ? 'AI hanya bisa memilih apel, jeruk, atau pisang, jadi buah lain tetap akan '
-                    'ditebak sebagai salah satunya.'
+                      'ditebak sebagai salah satunya.'
                 : 'AI kurang yakin dengan foto ini. Coba foto lebih dekat, di tempat terang, '
-                    'dengan satu buah saja.',
+                      'dengan satu buah saja.',
             style: const TextStyle(fontSize: 13, color: AppColors.inkSoft, height: 1.4),
           ),
         ],
@@ -415,10 +447,12 @@ class _LearnMore extends StatelessWidget {
                     children: [
                       Text('Kenalan dengan ${info.name}', style: displayStyle(size: 16)),
                       const SizedBox(height: 2),
-                      Text(info.funFact,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 13, color: AppColors.inkSoft, height: 1.35)),
+                      Text(
+                        info.funFact,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 13, color: AppColors.inkSoft, height: 1.35),
+                      ),
                     ],
                   ),
                 ),

@@ -4,9 +4,12 @@ import 'dart:math';
 import 'package:buah_seru/app.dart';
 import 'package:buah_seru/data/fruits.dart';
 import 'package:buah_seru/logic/quiz.dart';
+import 'package:buah_seru/screens/home_screen.dart';
 import 'package:buah_seru/screens/result_screen.dart';
 import 'package:buah_seru/services/app_state.dart';
 import 'package:buah_seru/theme.dart';
+import 'package:buah_seru/widgets/fruit_loader.dart';
+import 'package:buah_seru/widgets/opening_intro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,11 +36,9 @@ void main() {
 
   testWidgets('beranda menampilkan merek, poin, dan tiga buah', (tester) async {
     phone(tester);
-    await tester.pumpWidget(BuahSeruApp(
-      state: state,
-      classifierLoader: () async => FakeClassifier(_apel),
-      enableCamera: false,
-    ));
+    await tester.pumpWidget(
+      BuahSeruApp(state: state, classifierLoader: () async => FakeClassifier(_apel), enableCamera: false, intro: false),
+    );
     await tester.pump();
     expect(find.text('Buah-Seru'), findsOneWidget);
     expect(find.text('Ayo tebak buah!'), findsOneWidget);
@@ -51,7 +52,9 @@ void main() {
   testWidgets('foto contoh: tebakan sama dengan AI menambah poin', (tester) async {
     phone(tester);
     final fake = FakeClassifier(_apel);
-    await tester.pumpWidget(BuahSeruApp(state: state, classifierLoader: () async => fake, enableCamera: false));
+    await tester.pumpWidget(
+      BuahSeruApp(state: state, classifierLoader: () async => fake, enableCamera: false, intro: false),
+    );
     await tester.pump();
 
     await tester.tap(find.text('Contoh'));
@@ -75,11 +78,16 @@ void main() {
     phone(tester);
     final bytes = File('assets/samples/apel_tim.jpg').readAsBytesSync();
     final other = quizOptions(Fruit.apel, Random(3)).firstWhere((o) => o != 'Apel');
-    await tester.pumpWidget(AppScope(
-      state: state,
-      classifierLoader: () async => FakeClassifier(_apel),
-      child: MaterialApp(theme: buildTheme(), home: ResultScreen(imageBytes: bytes, random: Random(3))),
-    ));
+    await tester.pumpWidget(
+      AppScope(
+        state: state,
+        classifierLoader: () async => FakeClassifier(_apel),
+        child: MaterialApp(
+          theme: buildTheme(),
+          home: ResultScreen(imageBytes: bytes, random: Random(3)),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(find.text(other));
@@ -88,10 +96,60 @@ void main() {
     expect(find.text('Kalian berbeda pendapat'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Aku yang benar, ini $other'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Aku yang benar, ini $other'));
     await tester.pumpAndSettle();
     expect(find.text('Kamu lebih jeli dari AI!'), findsOneWidget);
     expect(state.points, 10);
     expect(state.history.single.aiCorrect, isFalse);
+  });
+
+  testWidgets('berbeda pendapat: anak boleh mengganti pilihan, poin dari tebakan pertama', (tester) async {
+    phone(tester);
+    final bytes = File('assets/samples/apel_tim.jpg').readAsBytesSync();
+    final other = quizOptions(Fruit.apel, Random(3)).firstWhere((o) => o != 'Apel');
+    await tester.pumpWidget(
+      AppScope(
+        state: state,
+        classifierLoader: () async => FakeClassifier(_apel),
+        child: MaterialApp(
+          theme: buildTheme(),
+          home: ResultScreen(imageBytes: bytes, random: Random(3)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text(other));
+    await tester.tap(find.text(other));
+    await tester.pumpAndSettle();
+    expect(find.text('Kalian berbeda pendapat'), findsOneWidget);
+
+    // pilihan masih bisa diganti setelah melihat jawaban AI
+    await tester.ensureVisible(find.text('Apel').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apel').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Bagus, kamu memeriksa lagi'), findsOneWidget);
+    expect(state.points, 0);
+    expect(state.history.single.guess, other);
+    expect(state.history.single.truth, 'Apel');
+  });
+
+  testWidgets('pembuka berakhir di beranda dan logo bisa diketuk', (tester) async {
+    phone(tester);
+    await tester.pumpWidget(
+      BuahSeruApp(state: state, classifierLoader: () async => FakeClassifier(_apel), enableCamera: false),
+    );
+    for (var i = 0; i < 90; i++) {
+      await tester.pump(const Duration(milliseconds: 33));
+    }
+    expect(find.byType(FruitLoader), findsOneWidget);
+    await tester.tap(find.byType(FruitLoader));
+    for (var i = 0; i < 260; i++) {
+      await tester.pump(const Duration(milliseconds: 33));
+    }
+    expect(find.byType(OpeningIntro), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 }
