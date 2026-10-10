@@ -57,8 +57,8 @@ dan satu fakta menarik. Kemajuan anak tercatat melalui poin, jumlah jawaban bena
 sudah ditemukan, serta riwayat 60 tebakan terakhir. Seluruh data tersebut, termasuk foto kecil hasil tebakan, hanya
 disimpan di ponsel; aplikasi tidak memerlukan akun dan tidak mengirim data ke server.
 
-Saat dibuka, aplikasi menyapa dengan "Halo!", lalu apel, jeruk, dan pisang melompat bergantian di tengah layar sementara
-model CNN dimuat. Anak dapat mengetuk buahnya: buah yang diketuk melompat tinggi sambil berputar, dan ulat kecil keluar
+Saat dibuka, huruf "Halo!" jatuh dan memantul di layar ungu, lalu layar ungu terangkat seperti tirai. Setelah itu apel,
+jeruk, dan pisang jatuh ke tengah layar dan melompat bergantian sementara model CNN dimuat. Anak dapat mengetuk buahnya: buah yang diketuk melompat tinggi sambil berputar, dan ulat kecil keluar
 dari lubang apel. Karena model sudah dimuat selama pembuka, tebakan pertama tidak perlu menunggu lama.
 
 ### Tangkapan layar
@@ -172,8 +172,8 @@ fun fact. Progress is recorded through points, correct-answer streaks, a collect
 history of the last 60 guesses. All of this data, including the small photos from each guess, stays on the phone; the
 app needs no account and sends nothing to a server.
 
-On launch the app greets the child with "Halo!", and then an apple, an orange, and a banana take turns hopping in the
-middle of the screen while the CNN loads. The child can tap them: the tapped fruit jumps high and spins, and a small
+On launch the letters of "Halo!" drop and bounce on a purple screen, which then lifts away like a curtain. An apple, an
+orange, and a banana fall into the middle of the screen and take turns hopping while the CNN loads. The child can tap them: the tapped fruit jumps high and spins, and a small
 caterpillar peeks out of the hole in the apple. Because the model loads during the opening, the first guess does not
 keep the child waiting.
 

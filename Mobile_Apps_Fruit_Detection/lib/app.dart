@@ -4,7 +4,6 @@ import 'screens/home_screen.dart';
 import 'services/app_state.dart';
 import 'services/classifier.dart';
 import 'theme.dart';
-import 'widgets/fruit_loader.dart';
 import 'widgets/opening_intro.dart';
 
 /// Layanan bersama untuk seluruh layar.
@@ -76,16 +75,6 @@ class _BuahSeruAppState extends State<BuahSeruApp> {
           child: _introDone
               ? HomeScreen(enableCamera: widget.enableCamera)
               : OpeningIntro(
-                  appName: 'Buah-Seru',
-                  tagline: 'Tebak buah bersama AI',
-                  mark: const FruitLoader(),
-                  hint: 'Ketuk buahnya',
-                  colors: const [Color(0xFF7E57C2), AppColors.purple],
-                  paper: AppColors.background,
-                  accent: AppColors.purple,
-                  ink: AppColors.ink,
-                  displayFont: AppFonts.display,
-                  bodyFont: AppFonts.body,
                   // model dimuat selama pembuka, jadi tebakan pertama tidak menunggu lama
                   ready: _load().then((_) {}),
                   onDone: () => setState(() => _introDone = true),
