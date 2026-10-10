@@ -110,6 +110,14 @@ flutter drive --driver=test_driver/integration_test.dart \
   --target=integration_test/screenshots_test.dart
 ```
 
+GIF demo di bagian atas dirender di laptop tanpa emulator. Uji `demo_render_test.dart` menggambar setiap layar dengan
+pengklasifikasi tiruan dan menyimpan bingkainya, lalu `tool/render_gif.py` menyusunnya ke dalam bingkai ponsel.
+
+```bash
+DEMO_FRAMES=build/frames flutter test test/demo_render_test.dart
+python3 tool/render_gif.py build/frames docs/demo.gif
+```
+
 ### Struktur
 
 ```
@@ -216,6 +224,14 @@ flutter test
 
 flutter drive --driver=test_driver/integration_test.dart \
   --target=integration_test/screenshots_test.dart
+```
+
+The demo GIF at the top is rendered on a laptop without an emulator. The test `demo_render_test.dart` draws every
+screen with a fake classifier and saves the frames, and `tool/render_gif.py` then places them in a phone frame.
+
+```bash
+DEMO_FRAMES=build/frames flutter test test/demo_render_test.dart
+python3 tool/render_gif.py build/frames docs/demo.gif
 ```
 
 ### Credits
